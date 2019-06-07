@@ -23,7 +23,7 @@ import { chunk } from "@utils";
 
 export default {
   components: {},
-  name: "BaseTable",
+  name: "BasePanele",
   props: {
     /**
      * 表格数据
