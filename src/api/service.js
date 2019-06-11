@@ -1,314 +1,133 @@
 /* eslint-disable */
 /**
  * 本文件由工具自动生成，请勿随意改动！！！
- * @name SMMP bd APIS
- * @description The API definition for the SMMP bd of Cloud Manage Platform.
- * @tutorial http://172.16.7.110/swagger-resources/platform/wec-smmp/yaml/wec-smmp-bd.yaml
+ * @name CMP Devops API
+ * @description The API definition for the Devops Console of Cloud Manage Platform.
+ * @tutorial public/wec-devops-superapp.yaml
  */
 import api from '@api/api'
 import http from '@utils/ajax'
-import { awaitWrap } from "@utils";
+import { awaitWrap } from '@utils'
 
 /**
- * 查询数据中心的数据列表
+ * 根据租户名称、类型查询学校列表
  * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
- * @param { Integer } params['pageNumber'] 分页页码
- * @param { Integer } params['pageSize'] 分页大小
- * @param { String } params['criteria'] 传入的是一个JSON格式的字符串，使用Base64编码
- * @param { Boolean } params['recycle'] 是否查询回收站数据
- * @param { Array } params['includeAttributes'] 需要返回的字段
- */
-export const  queryData =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.data_query, params))
-}
-
-/**
- * 新增基础数据
- * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
- * @param { String } params['attributes'] 属性的JSON串格式，需要Base64编码
- */
-export const  addData =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.data_add, params))
-}
-
-/**
- * 修改基础数据
- * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
- * @param { Integer } params['id'] 需要修改数据的WID
- * @param { String } params['attributes'] 属性的JSON串格式
- */
-export const  updateData =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.data_update, params))
-}
-
-/**
- * 删除基础数据前的检查
- * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
- * @param { Array } params['ids'] 
- * @param { String } params['criteria'] 传入的是一个JSON格式的字符串，使用Base64编码
- * @param { Boolean } params['recycle'] 是否删除回收站数据
- */
-export const  deleteDataBefore =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.data_beforedelete, params))
-}
-
-/**
- * 删除基础数据
- * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
- * @param { Array } params['ids'] 
- * @param { String } params['criteria'] 传入的是一个JSON格式的字符串，使用Base64编码
- * @param { Boolean } params['recycle'] 是否删除回收站数据
- */
-export const  deleteData =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.data_delete, params))
-}
-
-/**
- * 根据ID获取数据详情
- * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
- * @param { Integer } params['id'] 需要删除数据的WID
- */
-export const  getDataById =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.data_getbyid, params))
-}
-
-/**
- * 获取树形结构的数据，分级加载
- * @param { Object } params 请求参数
- * @param { String } params['objectName'] 模型名称
- * @param { Integer } params['pid'] 父节点ID，如果是第一级，则该字段为空
- */
-export const  getTreeData =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.data_gettreedata, params))
-}
-
-/**
- * 查询导入历史
- * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
+ * @param { String } params['searchKey'] 搜索关键字
+ * @param { Integer } params['schoolType'] 学校类型。1：新私有云平台；2：校端云平台
  * @param { Integer } params['pageNumber'] 分页页码
  * @param { Integer } params['pageSize'] 分页大小
  */
-export const  queryImportHistory =async (params) => {
+export const querySchool = async params => {
     // send request
-    return awaitWrap(http.post(api.data_queryimporthistory, params))
+    return awaitWrap(http.post(api.school_queryschool, params))
 }
 
 /**
- * 获取所有字典类型
- * @param { Array } params 请求参数
- */
-export const  listDictType =async (params) => {
-    // send request
-    return awaitWrap(http.get(api.dict_listdicttype, params))
-}
-
-/**
- * 获取某个字典的详情
+ * 根据dubbo接口获取所有学校，初始化下拉学校列表
  * @param { Object } params 请求参数
- * @param { String } params['dictName'] 字典名称
+ * @param { String } params['searchKey']
+ */
+export const initAllSchool = async params => {
+    // send request
+    return awaitWrap(http.get(api.school_initallschool, params))
+}
+
+/**
+ * 保存学校配置信息，包括新增和修改
+ * @param { Object } params 请求参数
+ * @param { String } params['schoolCode'] 学校代码
+ * @param { Integer } params['schoolType'] 学校类型。1：新私有云平台；2：校端云平台
+ * @param { String } params['schoolName'] 学校名称
+ */
+export const saveSchool = async params => {
+    // send request
+    return awaitWrap(http.post(api.school_saveschool, params))
+}
+
+/**
+ * 查询学校基础信息
+ * @param { Object } params 请求参数
+ * @param { String } params['schoolCode']
+ */
+export const selectSchool = async params => {
+    // send request
+    return awaitWrap(http.get(api.school_selectschool, params))
+}
+
+/**
+ * 读取私有云可推送的应用
+ * @param { Object } params 请求参数
+ * @param { String } params['searchKey'] 搜索关键字
+ * @param { String } params['categoryId'] 应用分类id
+ * @param { String } params['schoolCode'] 学校代码
  * @param { Integer } params['pageNumber'] 分页页码
  * @param { Integer } params['pageSize'] 分页大小
- * @param { String } params['keyword'] 搜索关键字，只搜索名称和编号
  */
-export const  getWhole =async (params) => {
+export const readPrivateAppForPush = async params => {
     // send request
-    return awaitWrap(http.post(api.dict_getwhole, params))
+    return awaitWrap(http.post(api.pushapp_readprivateappforpush, params))
 }
 
 /**
- * 开启或关闭某个全局字典
- * @param { Object } params 请求参数
- * @param { String } params['dictName'] 字典名称
- * @param { Integer } params['id'] 字典对象的WID
- * @param { Boolean } params['status'] 需要调整后的状态 true 开启 false 关闭
- */
-export const  switchGlobeDict =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.dict_switchglobedict, params))
-}
-
-/**
- * 获取某个字典的详情
- * @param { Object } params 请求参数
- * @param { String } params['dictName'] 字典名称
- * @param { Integer } params['id'] 字典对象的WID
- */
-export const  getDictById =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.dict_getbyid, params))
-}
-
-/**
- * 新增字典数据
- * @param { Object } params 请求参数
- * @param { String } params['dictName'] 字段名称
- * @param {  } params['attributes'] 
- */
-export const  addDict =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.dict_add, params))
-}
-
-/**
- * 修改字典数据
- * @param { Object } params 请求参数
- * @param { String } params['dictName'] 字段名称
- * @param { Integer } params['id'] 字典的WID
- * @param {  } params['attributes'] 
- */
-export const  updateDict =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.dict_update, params))
-}
-
-/**
- * 删除字典数据
- * @param { Object } params 请求参数
- * @param { String } params['dictName'] 字段名称
- * @param { Integer } params['id'] 字典的WID
- */
-export const  deleteDict =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.dict_delete, params))
-}
-
-/**
- * 删除字典数据前检查
- * @param { Object } params 请求参数
- * @param { String } params['dictName'] 字段名称
- * @param { Integer } params['id'] 字典的WID
- */
-export const  deleteDictBefore =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.dict_befordelete, params))
-}
-
-/**
- * 更新方式设置前检查
- * @param { Array } params 请求参数
- * @param { Integer } params[]['tblWid'] 表格的wid，t_meta_table表
- * @param { String } params[]['objectName'] 模型名称
- * @param { String } params[]['displayName'] 显示名称
- * @param { Integer } params[]['modifyType'] 更新方式 1 ETL更新  2 应用更新
- * @param { Boolean } params[]['allowAppModify'] 当modifyType&#x3D;1时，是否同时允许应用更新
- */
-export const  beforeSetDataTableModifyType =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.config_beforesetdatatablemodifytype, params))
-}
-
-/**
- * 更新数据更新方式设置
- * @param { Array } params 请求参数
- * @param { Integer } params[]['tblWid'] 表格的wid，t_meta_table表
- * @param { String } params[]['objectName'] 模型名称
- * @param { String } params[]['displayName'] 显示名称
- * @param { Integer } params[]['modifyType'] 更新方式 1 ETL更新  2 应用更新
- * @param { Boolean } params[]['allowAppModify'] 当modifyType&#x3D;1时，是否同时允许应用更新
- */
-export const  setDataTableModifyType =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.config_setdatatablemodifytype, params))
-}
-
-/**
- * 数据更新方式设置
+ * 初始化私有云应用类别列表
  * @param { Array } params 请求参数
  */
-export const  queryDataTableModifyType =async (params) => {
+export const initPrivateCategory = async params => {
     // send request
-    return awaitWrap(http.get(api.config_querydatatablemodifytype, params))
+    return awaitWrap(http.get(api.pushapp_initprivatecategory, params))
 }
 
 /**
- * 查询ETL数据维护设置
- * @param { Array } params 请求参数
- */
-export const  queryETLConfigType =async (params) => {
-    // send request
-    return awaitWrap(http.get(api.config_queryetlconfigtype, params))
-}
-
-/**
- * 查询ETL数据维护设置
- * @param { Array } params 请求参数
- * @param { String } params[]['objectName'] 模型名称
- * @param { String } params[]['displayName'] 显示名称
- * @param { Boolean } params[]['allowEtlTransport'] 允许ETL传输
- * @param { Boolean } params[]['allowEtlModify'] 允许更新
- * @param { Boolean } params[]['allowEtlPreDelete'] 允许预删除
- * @param { Boolean } params[]['disabledDelete'] 是否允许界面预删除 默认false（允许）
- * @param { Boolean } params[]['disabledModify'] 是否允许界面修改，默认false (允许)
- * @param { Boolean } params[]['disabledTransport'] 是否允许界面传输，默认false (允许)
- */
-export const  setETLConfigType =async (params) => {
-    // send request
-    return awaitWrap(http.post(api.config_setetlconfigtype, params))
-}
-
-/**
- * 恢复回收站中的数据
+ * 读取公有云可推送的应用
  * @param { Object } params 请求参数
- * @param { String } params['type'] 模型对象
- * @param { Array } params['ids'] 
+ * @param { String } params['searchKey'] 搜索关键字
+ * @param { String } params['schoolCode'] 学校代码
+ * @param { Integer } params['pageNumber'] 分页页码
+ * @param { Integer } params['pageSize'] 分页大小
  */
-export const  recoveryRecycleData =async (params) => {
+export const readPublicAppForPush = async params => {
     // send request
-    return awaitWrap(http.post(api.config_recoveryrecycledata, params))
+    return awaitWrap(http.post(api.pushapp_readpublicappforpush, params))
 }
 
 /**
- * 获取当前租户的状态
- * @param { Array } params 请求参数
- */
-export const  getSchoolStatus =async (params) => {
-    // send request
-    return awaitWrap(http.get(api.config_getschoolstatus, params))
-}
-
-/**
- * 设置当前租户的状态
+ * 确认出库到学校
  * @param { Object } params 请求参数
- * @param { Integer } params['schoolId'] 租户ID
- * @param { String } params['schoolCode'] 租户编码
- * @param { Boolean } params['status'] 当前状态 true 开启，false 关闭
+ * @param { String } params['schoolCode'] 学校代码
+ * @param { Array } params['privateAppList']
+ * @param { Array } params['publicAppList']
  */
-export const  setSchoolStatus =async (params) => {
+export const pushSchoolApp = async params => {
     // send request
-    return awaitWrap(http.post(api.config_setschoolstatus, params))
+    return awaitWrap(http.post(api.pushapp_pushschoolapp, params))
 }
 
 /**
- * 获取当前ETL传输开关状态
- * @param { Array } params 请求参数
- */
-export const  getEtlTransportStatus =async (params) => {
-    // send request
-    return awaitWrap(http.get(api.config_getetltransportstatus, params))
-}
-
-/**
- * 设置当前ETL传输开关状态
+ * 查询已接入的私有云应用
  * @param { Object } params 请求参数
- * @param { Integer } params['schoolId'] 租户ID
- * @param { Boolean } params['transportStatus'] 传输开关 true 开启 false 关闭
+ * @param { String } params['schoolId'] 学校id
+ * @param { String } params['categoryId'] 应用分类id
+ * @param { String } params['searchKey'] 搜索关键字，可模糊查询应用id和名称
+ * @param { Integer } params['isPurchaseWeb'] 是否出库pc服务。0:否；1：是
+ * @param { Integer } params['isPurchaseMobile'] 是否出库移动服务。0:否；1：是
+ * @param { Integer } params['parchaseStatus'] 接入状态(0：未接入；1：已接入)
+ * @param { Integer } params['pageNumber'] 分页页码
+ * @param { Integer } params['pageSize'] 分页大小
  */
-export const  setEtlTransportStatus =async (params) => {
+export const queryPrivateApp = async params => {
     // send request
-    return awaitWrap(http.post(api.config_setetltransportstatus, params))
+    return awaitWrap(http.post(api.school_queryprivateapp, params))
 }
 
+/**
+ * 查询已接入的公有云应用
+ * @param { Object } params 请求参数
+ * @param { String } params['schoolId'] 学校id
+ * @param { String } params['searchKey'] 搜索关键字，可模糊查询应用id和名称
+ * @param { Integer } params['pageNumber'] 分页页码
+ * @param { Integer } params['pageSize'] 分页大小
+ */
+export const queryPublicApp = async params => {
+    // send request
+    return awaitWrap(http.post(api.school_querypublicapp, params))
+}

@@ -1,17 +1,17 @@
 <template>
-  <div class="img-preview">
-    <transition name="fade">
-      <div @click="toggle" v-show="show" class="img-bg">
-        <div class="top active">
-          <div class="title">{{ title }}</div>
-        </div>
-        <div class="content">
-          <img :src="src" alt />
-        </div>
-        <div class="bottom"></div>
-      </div>
-    </transition>
-  </div>
+    <div class="img-preview">
+        <transition name="fade">
+            <div @click="toggle" v-show="show" class="img-bg">
+                <div class="top active">
+                    <div class="title">{{ title }}</div>
+                </div>
+                <div class="content">
+                    <img :src="src" alt />
+                </div>
+                <div class="bottom"></div>
+            </div>
+        </transition>
+    </div>
 </template>
 <script>
 /**
@@ -20,31 +20,31 @@
 import {} from "@api/service";
 
 export default {
-  components: {},
-  name: "ImgPreview",
-  props: {
-    value: Boolean,
-    src: String,
-    title: String
-  },
-  data() {
-    return {};
-  },
-  computed: {
-    show: {
-      get() {
-        return this.value;
-      },
-      set(value) {
-        this.$emit("input", value);
-      }
+    components: {},
+    name: "ImgPreview",
+    props: {
+        value: Boolean,
+        src: String,
+        title: String
+    },
+    data() {
+        return {};
+    },
+    computed: {
+        show: {
+            get() {
+                return this.value;
+            },
+            set(value) {
+                this.$emit("input", value);
+            }
+        }
+    },
+    methods: {
+        toggle() {
+            this.show = !this.show;
+        }
     }
-  },
-  methods: {
-    toggle() {
-      this.show = !this.show;
-    }
-  }
 };
 </script>
 <style lang="stylus" scoped>

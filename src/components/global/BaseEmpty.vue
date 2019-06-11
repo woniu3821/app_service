@@ -1,39 +1,39 @@
 <template>
-  <div class="base-empty">
-    <div class="content" :style="styles">
-      <img :src="img" />
-      <p class="title">{{ title }}</p>
-      <div>
-        <slot></slot>
-      </div>
+    <div class="base-empty">
+        <div class="content" :style="styles">
+            <img :src="img" />
+            <p class="title">{{ title }}</p>
+            <div>
+                <slot></slot>
+            </div>
+        </div>
     </div>
-  </div>
 </template>
 <script>
 import {} from "@api/service";
 
 export default {
-  components: {},
-  name: "BaseEmpty",
-  props: {
-    title: String,
-    height: {
-      type: Number,
-      default: 500
-    }
-  },
-  data() {
-    return {
-      img: require("@assets/img/empty.png")
-    };
-  },
-  computed: {
-    styles() {
-      return { minHeight: `${this.height}px` };
-    }
-  },
-  methods: {},
-  mounted() {}
+    components: {},
+    name: "BaseEmpty",
+    props: {
+        title: String,
+        height: {
+            type: Number,
+            default: 500
+        }
+    },
+    data() {
+        return {
+            img: require("@assets/img/empty.png")
+        };
+    },
+    computed: {
+        styles() {
+            return { minHeight: `${this.height}px` };
+        }
+    },
+    methods: {},
+    mounted() {}
 };
 </script>
 <style lang="stylus" scoped>
