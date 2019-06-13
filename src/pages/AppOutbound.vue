@@ -131,6 +131,7 @@
 <script>
 import { querySchool, initAllSchool, saveSchool } from "@api/service";
 import OutboundSelect from "@views/OutboundSelect.vue";
+import { mapState } from 'vuex'
 
 export default {
     meta: { name: "应用出库" },
@@ -162,6 +163,7 @@ export default {
     },
 
     computed: {
+        ...mapState(['appTypeList']),
         formCreateValidate () {
             return {
                 schoolCode: { required: true, message: "请选择学校", trigger: "change" },

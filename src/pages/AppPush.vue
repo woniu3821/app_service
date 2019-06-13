@@ -18,7 +18,10 @@
                 v-model="baseParams.searchKey"
                 @on-search="queryListFirst"
             />
-            <div class="plat_type mt-10" v-show="currentTab===0">
+            <div
+                class="plat_type mt-10"
+                v-show="currentTab===0"
+            >
                 <label class="mr-10">应用分类</label>
                 <Select
                     v-model="queryListParams.categoryId"
@@ -26,9 +29,10 @@
                     @on-change="changeType"
                     transfor
                 >
-                  <Option
-                    value=""
-                    :key="-1">请选择...
+                    <Option
+                        value=""
+                        :key="-1"
+                    >请选择...
                     </Option>
                     <Option
                         v-for="(option, index) in appTypeList"
@@ -80,6 +84,10 @@ export default {
     },
     computed: {
         ...mapState(['appTypeList']),
+
+        schoolName () {
+            return this.$route.params.schoolName
+        },
         baseParams () {
             return {
                 schoolId: '',
@@ -87,9 +95,6 @@ export default {
                 pageNumber: 1,
                 pageSize: 10
             }
-        },
-        schoolName(){
-            return this.$route.params.schoolName
         },
         queryListParams () {
             const map = new Map([
@@ -138,11 +143,11 @@ export default {
                         ],
                         // filterMultiple: false,
                         filterMethod: (value, row) => {
-                          if(value===1){
-                              return row.isPurchaseWeb===1;
-                          }else if(value===2){
-                               return row.isPurchaseMobile===1;
-                          }
+                            if (value === 1) {
+                                return row.isPurchaseWeb === 1;
+                            } else if (value === 2) {
+                                return row.isPurchaseMobile === 1;
+                            }
                         },
                         render: (h, param) => {
                             const { isPurchaseWeb, isPurchaseMobile } = param.row;
@@ -224,24 +229,24 @@ export default {
                     {
                         title: "服务",
                         key: "serviceList",
-                        ellipsis:true,
-                        maxWidth:300,
+                        ellipsis: true,
+                        maxWidth: 300,
                         render: (h, params) => {
                             const { serviceList } = params.row;
                             const list = serviceList || [];
                             return list.map(it => {
-                                 const { isPurchaseWeb, isPurchaseMobile } =it;
-                                let text=''
-                                        if (isPurchaseWeb) {
-                                            text='（PC）'
-                                        } else if (isPurchaseMobile) {
-                                             text='（移动）'
-                                        } else if (isPurchaseWeb && isPurchaseMobile) {
-                                             text='（PC/移动）'
-                                        }
+                                const { isPurchaseWeb, isPurchaseMobile } = it;
+                                let text = ''
+                                if (isPurchaseWeb) {
+                                    text = '（PC）'
+                                } else if (isPurchaseMobile) {
+                                    text = '（移动）'
+                                } else if (isPurchaseWeb && isPurchaseMobile) {
+                                    text = '（PC/移动）'
+                                }
                                 return <Tag>{it.serviceName}{text}</Tag>
                             })
-                    
+
                         }
                     },
 
