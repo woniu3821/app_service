@@ -1,13 +1,7 @@
 <template>
     <ul>
-        <li
-            v-for="item in model"
-            :key="item.name"
-        >
-            <router-link
-                :to="item"
-                exact
-            >{{ item.meta.name }}</router-link>
+        <li v-for="item in model" :key="item.name">
+            <router-link :to="item" exact>{{ item.meta.name }}</router-link>
         </li>
         <slot></slot>
     </ul>
@@ -19,7 +13,7 @@ export default {
         model: {
             required: true,
             type: Array,
-            default: function () {
+            default: function() {
                 return [];
             }
         }

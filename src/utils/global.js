@@ -19,7 +19,9 @@ contexts.keys().forEach(component => {
  * 注册全局mixins
  */
 
-Vue.mixin({ ...emitter, ...message });
+Vue.mixin(message);
+
+Vue.mixin(emitter);
 
 Message.config({
     duration: 3

@@ -1,12 +1,9 @@
 <template>
     <div class="app-push">
         <NavBar :model="routes">
-            <li>学校应用详情（{{schoolName}}）</li>
+            <li>学校应用详情（{{ schoolName }}）</li>
         </NavBar>
-        <Tabs
-            v-model="currentTab"
-            @on-click="tabChange"
-        >
+        <Tabs v-model="currentTab" @on-click="tabChange">
             <TabPane label="私有云应用"></TabPane>
             <TabPane label="公有云应用"></TabPane>
         </Tabs>
@@ -18,10 +15,7 @@
                 v-model="baseParams.searchKey"
                 @on-search="queryListFirst"
             />
-            <div
-                class="plat_type mt-10"
-                v-show="currentTab===0"
-            >
+            <div class="plat_type mt-10" v-show="currentTab === 0">
                 <label class="mr-10">应用分类</label>
                 <Select
                     v-model="queryListParams.categoryId"
@@ -29,16 +23,13 @@
                     @on-change="changeType"
                     transfor
                 >
-                    <Option
-                        value=""
-                        :key="-1"
-                    >请选择...
-                    </Option>
+                    <Option value="" :key="-1">请选择... </Option>
                     <Option
                         v-for="(option, index) in appTypeList"
                         :value="option.categoryId"
                         :key="index"
-                    >{{ option.categoryName }}</Option>
+                        >{{ option.categoryName }}</Option
+                    >
                 </Select>
             </div>
             <div class="table mt-10 mb-15">
@@ -60,19 +51,18 @@
                     />
                 </Row>
             </div>
-
         </div>
     </div>
 </template>
 <script>
 import { queryPrivateApp, queryPublicApp } from "@api/service";
-import { mapState } from 'vuex'
+import { mapState } from "vuex";
 export default {
     meta: { name: "应用出库" },
     components: {},
     name: "AppPush",
     props: {},
-    data () {
+    data() {
         return {
             routes: [],
             currentTab: 0,
@@ -83,38 +73,37 @@ export default {
         };
     },
     computed: {
-        ...mapState(['appTypeList']),
+        ...mapState(["appTypeList"]),
 
-        schoolName () {
-            return this.$route.params.schoolName
+        schoolName() {
+            return this.$route.params.schoolName;
         },
-        baseParams () {
+        baseParams() {
             return {
-                schoolId: '',
-                searchKey: '',
+                schoolId: "",
+                searchKey: "",
                 pageNumber: 1,
                 pageSize: 10
-            }
+            };
         },
-        queryListParams () {
+        queryListParams() {
             const map = new Map([
                 [
-                    0, {
-                        categoryId: '',
-                        isPurchaseWeb: '',
-                        isPurchaseMobile: '',
-                        parchaseStatus: '',
+                    0,
+                    {
+                        categoryId: "",
+                        isPurchaseWeb: "",
+                        isPurchaseMobile: "",
+                        parchaseStatus: "",
                         ...this.baseParams
                     }
                 ],
-                [
-                    1, this.baseParams
-                ]
+                [1, this.baseParams]
             ]);
 
-            return map.get(this.currentTab)
+            return map.get(this.currentTab);
         },
-        schoolColumns () {
+        schoolColumns() {
             if (this.currentTab == 0) {
                 return [
                     {
@@ -152,11 +141,11 @@ export default {
                         render: (h, param) => {
                             const { isPurchaseWeb, isPurchaseMobile } = param.row;
                             if (isPurchaseWeb) {
-                                return <span>PC</span>
+                                return <span>PC</span>;
                             } else if (isPurchaseMobile) {
-                                return <span>移动</span>
+                                return <span>移动</span>;
                             } else if (isPurchaseWeb && isPurchaseMobile) {
-                                return <span>PC 移动</span>
+                                return <span>PC 移动</span>;
                             }
                         }
                     },
@@ -166,7 +155,7 @@ export default {
                     },
                     {
                         title: "版本号",
-                        key: "parchaseVersion",
+                        key: "parchaseVersion"
                     },
                     {
                         title: "接入状态",
@@ -190,14 +179,13 @@ export default {
                             return parchaseStatus === 1 ? (
                                 <span style="color:#2EBE6D">已接入</span>
                             ) : (
-                                    <span style="color:#515A6E">待接入</span>
-                                );
+                                <span style="color:#515A6E">待接入</span>
+                            );
                         }
-                    },
-                ]
+                    }
+                ];
             } else {
                 return [
-
                     {
                         title: "应用名称",
                         key: "appName"
@@ -218,8 +206,8 @@ export default {
                             return parchaseStatus === 1 ? (
                                 <span style="color:#2EBE6D">已接入</span>
                             ) : (
-                                    <span style="color:#515A6E">待接入</span>
-                                );
+                                <span style="color:#515A6E">待接入</span>
+                            );
                         }
                     },
                     {
@@ -230,35 +218,60 @@ export default {
                         title: "服务",
                         key: "serviceList",
                         ellipsis: true,
-                        maxWidth: 300,
+                        width: 400,
                         render: (h, params) => {
                             const { serviceList } = params.row;
                             const list = serviceList || [];
-                            return list.map(it => {
+                            function transforText(it) {
                                 const { isPurchaseWeb, isPurchaseMobile } = it;
-                                let text = ''
+                                let text = "";
                                 if (isPurchaseWeb) {
-                                    text = '（PC）'
+                                    text = "（PC）";
                                 } else if (isPurchaseMobile) {
-                                    text = '（移动）'
+                                    text = "（移动）";
                                 } else if (isPurchaseWeb && isPurchaseMobile) {
-                                    text = '（PC/移动）'
+                                    text = "（PC/移动）";
                                 }
-                                return <Tag>{it.serviceName}{text}</Tag>
-                            })
+                                return text;
+                            }
+                            const text = list
+                                .map(it => {
+                                    let text = transforText(it);
+                                    return `${it.serviceName}${text}`;
+                                })
+                                .join(",");
 
+                            const scopedSlots = {
+                                content: () => (
+                                    <div style="white-space: normal">
+                                        {list.map(it => {
+                                            let text = transforText(it);
+                                            return <Tag>{it.serviceName + text}</Tag>;
+                                        })}{" "}
+                                    </div>
+                                )
+                            };
+                            return (
+                                <Tooltip
+                                    transfer
+                                    theme="light"
+                                    placement="bottom-start"
+                                    scopedSlots={scopedSlots}
+                                >
+                                    {text}
+                                </Tooltip>
+                            );
                         }
-                    },
-
-                ]
+                    }
+                ];
             }
         }
     },
     methods: {
-        changeType () {
+        changeType() {
             this.queryListFirst();
         },
-        async queryList () {
+        async queryList() {
             this.listLoading = true;
 
             const queryFn = this.currentTab === 0 ? queryPrivateApp : queryPublicApp;
@@ -273,34 +286,38 @@ export default {
             this.totalSize = data.totalSize;
             this.appList = data.rows;
         },
-        queryListFirst () {
+        queryListFirst() {
             this.queryListParams.pageNumber = 1;
             this.queryList();
         },
-        pageNumChange (num) {
+        pageNumChange(num) {
             this.queryListParams.pageNumber = num;
             this.queryList();
         },
-        pageSizeChange (num) {
+        pageSizeChange(num) {
             this.queryListParams.pageSize = num;
             this.queryList();
         },
-        tabChange () {
-            this.baseParams.searchKey = ''
+        tabChange() {
+            this.baseParams.searchKey = "";
             this.queryListFirst();
         }
     },
-    mounted () {
-        this.queryList()
+    mounted() {
+        this.queryList();
     },
-    beforeRouteEnter (to, form, next) {
+    beforeRouteEnter(to, form, next) {
         next(vm => {
-            vm.routes = [form]
-        })
+            vm.routes = [form];
+        });
     }
 };
 </script>
 <style lang="stylus" scoped>
+>>>.ivu-tooltip {
+    ellipsis();
+    display: block;
+}
 .app-push {
     .plat_type {
         fon-size: 14px;

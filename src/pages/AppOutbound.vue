@@ -11,11 +11,9 @@
             />
         </div>
         <div class="add mt-25">
-            <Button
-                type="primary"
-                size="large"
-                @click.native="showCreate"
-            >&nbsp;&nbsp;&nbsp;新建&nbsp;&nbsp;&nbsp;</Button>
+            <Button type="primary" size="large" @click.native="showCreate"
+                >&nbsp;&nbsp;&nbsp;新建&nbsp;&nbsp;&nbsp;</Button
+            >
         </div>
         <div class="table mt-10 mb-15">
             <Table
@@ -52,10 +50,7 @@
                 :rules="formCreateValidate"
                 class="plr-25"
             >
-                <FormItem
-                    label="学校名称"
-                    prop="schoolCode"
-                >
+                <FormItem label="学校名称" prop="schoolCode">
                     <Select
                         v-model="saveSchoolParams.schoolCode"
                         filterable
@@ -69,7 +64,8 @@
                             v-for="(option, index) in schoolSelectList"
                             :value="option.schoolCode"
                             :key="index"
-                        >{{ option.schoolName }}</Option>
+                            >{{ option.schoolName }}</Option
+                        >
                     </Select>
                 </FormItem>
                 <FormItem label="学校代码">
@@ -77,13 +73,10 @@
                         readonly
                         v-model="saveSchoolParams.schoolCode"
                         placeholder="选择学校后显示"
-                        :disabled="saveSchoolParams.schoolCode===''"
+                        :disabled="saveSchoolParams.schoolCode === ''"
                     ></Input>
                 </FormItem>
-                <FormItem
-                    label="平台类型"
-                    prop="schoolType"
-                >
+                <FormItem label="平台类型" prop="schoolType">
                     <RadioGroup v-model="saveSchoolParams.schoolType">
                         <Radio :label="1">
                             <span>校端云平台</span>
@@ -119,30 +112,80 @@
         <BaseModal
             v-model="outBoundModal"
             title="应用出库"
-            @on-cancel="cancelOutBound"
-            @on-ok="saveOutBound"
-            ok-text="保存"
             width="963px"
+            :closable="false"
+            :mask-closable="false"
         >
-            <OutboundSelect />
+            <OutboundSelect ref="select" :loading.sync="pushLoading">
+                <template #default="list">
+                    <span style="display:none">
+                        {{ (hasPushList = list.hasPushList) }}
+                    </span>
+                </template>
+            </OutboundSelect>
+            <template #footer>
+                <Row>
+                    <Button @click.native="showConfirm" class="mr-10" type="text">取消</Button>
+                    <template v-if="tipStatus === 1">
+                        <OutboundButton ref="checktip" :model="hasPushList" @on-click="checkPush">
+                            <Button
+                                @click.native="showCheckPush"
+                                type="primary"
+                                :loading="pushLoading"
+                                >确认出库</Button
+                            >
+                        </OutboundButton>
+                    </template>
+
+                    <template v-else>
+                        <OutboundNotTip ref="nochecktip" @on-click="closeTip">
+                            <Button @click.native="closeTip" type="primary" :loading="pushLoading"
+                                >确认出库</Button
+                            >
+                        </OutboundNotTip>
+                    </template>
+                </Row>
+            </template>
+        </BaseModal>
+
+        <BaseModal
+            v-model="outConfirm"
+            title="确认"
+            ok-text="关闭"
+            ok-type="error"
+            type="warning"
+            width="360"
+            simple
+            @on-ok="closeOutbound"
+            @on-cancel="cancelOutConfirm"
+        >
+            <label>关闭后已选数据将被清除，确认操作吗？</label>
         </BaseModal>
     </div>
 </template>
 <script>
 import { querySchool, initAllSchool, saveSchool } from "@api/service";
 import OutboundSelect from "@views/OutboundSelect.vue";
-import { mapState } from 'vuex'
+import OutboundButton from "@views/OutboundButton.vue";
+import OutboundNotTip from "@views/OutboundNotTip.vue";
+
+import { mapState } from "vuex";
 
 export default {
     meta: { name: "应用出库" },
+    // mixins:[emitter],
     components: {
         OutboundSelect,
+        OutboundButton,
+        OutboundNotTip
     },
     name: "AppOutbound",
     props: {},
-    data () {
+    data() {
         return {
+            pushLoading: false,
             searchLoading: false,
+            outConfirm: false,
             schoolList: [],
             schoolSelectList: [],
             listLoading: false,
@@ -151,25 +194,25 @@ export default {
             showTypeModal: false,
             outBoundModal: false,
             schoolType: 1,
-            schoolCode: '',
-            schoolName: '',
+            schoolCode: "",
+            schoolName: "",
             saveSchoolParams: {
-                schoolCode: '',
+                schoolCode: "",
                 schoolType: 1,
-                schoolName: ''
-            }
-
+                schoolName: ""
+            },
+            hasPushList: []
         };
     },
 
     computed: {
-        ...mapState(['appTypeList']),
-        formCreateValidate () {
+        ...mapState(["appTypeList", "tipStatus"]),
+        formCreateValidate() {
             return {
-                schoolCode: { required: true, message: "请选择学校", trigger: "change" },
+                schoolCode: { required: true, message: "请选择学校", trigger: "change" }
             };
         },
-        queryListParams () {
+        queryListParams() {
             return {
                 searchKey: "",
                 schoolType: "",
@@ -177,12 +220,12 @@ export default {
                 pageSize: 10
             };
         },
-        initAllSchoolParams () {
+        initAllSchoolParams() {
             return {
-                params: { searchKey: '' }
-            }
+                params: { searchKey: "" }
+            };
         },
-        schoolColumns () {
+        schoolColumns() {
             return [
                 {
                     title: "学校名称",
@@ -214,8 +257,8 @@ export default {
                         return schoolType == 1 ? (
                             <span>新私有云平台</span>
                         ) : (
-                                <span>校端云平台</span>
-                            );
+                            <span>校端云平台</span>
+                        );
                     }
                 },
                 {
@@ -237,7 +280,9 @@ export default {
                                 <span class="split" onClick={() => this.showOutbound(params.row)}>
                                     应用出库
                                 </span>
-                                <span class="split" onClick={() => this.toDetail(params.row)}>详情</span>
+                                <span class="split" onClick={() => this.toDetail(params.row)}>
+                                    详情
+                                </span>
                                 <span class="split" onClick={() => this.showType(params.row)}>
                                     修改平台类型
                                 </span>
@@ -245,20 +290,50 @@ export default {
                         );
                     }
                 }
-            ]
+            ];
         }
     },
     watch: {
-        'saveSchoolParams.schoolCode' (val) {
+        "saveSchoolParams.schoolCode"(val) {
             if (val) {
-                this.saveSchoolParams.schoolName = this.schoolSelectList.find(it => it.schoolCode === val).schoolName;
+                this.saveSchoolParams.schoolName = this.schoolSelectList.find(
+                    it => it.schoolCode === val
+                ).schoolName;
             } else {
-                this.saveSchoolParams.schoolName = ''
+                this.saveSchoolParams.schoolName = "";
             }
         }
     },
     methods: {
-        async queryList () {
+        showConfirm() {
+            this.$refs.select.concatApplist.length
+                ? (this.outConfirm = true)
+                : this.closeOutbound();
+        },
+        cancelOutConfirm() {
+            this.outConfirm = false;
+        },
+        closeOutbound() {
+            this.outBoundModal = false;
+            this.outConfirm = false;
+            this.$refs.select.clearSelect();
+        },
+        checkPush() {
+            this.$refs.select.checkAppApi();
+        },
+        showCheckPush() {
+            const hasOut = this.hasPushList.length > 0;
+            if (hasOut) {
+                this.$refs.checktip && (this.$refs.checktip.disabled = false);
+            } else {
+                this.$store.commit("changeTipStatus", 2);
+                this.checkPush();
+            }
+        },
+        closeTip() {
+            this.$refs.nochecktip.disabled = true;
+        },
+        async queryList() {
             this.listLoading = true;
             const [err, data] = await querySchool(this.queryListParams);
             this.listLoading = false;
@@ -270,11 +345,11 @@ export default {
             this.totalSize = data.totalSize;
             this.schoolList = data.rows;
         },
-        queryListFirst () {
+        queryListFirst() {
             this.queryListParams.pageNumber = 1;
             this.queryList();
         },
-        async initAllSchool () {
+        async initAllSchool() {
             this.searchLoading = true;
             const [err, data] = await initAllSchool(this.initAllSchoolParams);
             this.searchLoading = false;
@@ -285,36 +360,36 @@ export default {
             }
             this.schoolSelectList = data;
         },
-        async saveSchool () {
-            const [err,] = await saveSchool(this.saveSchoolParams);
+        async saveSchool() {
+            const [err] = await saveSchool(this.saveSchoolParams);
             if (err) {
                 const msg = err || "保存失败";
                 this.errors(msg);
                 return false;
             }
-            this.success('保存成功');
+            this.success("保存成功");
             return true;
         },
-        searchSchool (val) {
+        searchSchool(val) {
             this.initAllSchoolParams.params.searchKey = val;
             this.initAllSchool();
         },
-        pageNumChange (num) {
+        pageNumChange(num) {
             this.queryListParams.pageNumber = num;
             this.queryList();
         },
-        pageSizeChange (num) {
+        pageSizeChange(num) {
             this.queryListParams.pageSize = num;
             this.queryList();
         },
-        showCreate () {
+        showCreate() {
             this.showAddModal = true;
         },
-        cancelCreate () {
+        cancelCreate() {
             this.$refs.formCreate.resetFields();
             this.showAddModal = false;
         },
-        create () {
+        create() {
             this.$refs.formCreate.validate(async val => {
                 if (val) {
                     const result = await this.saveSchool();
@@ -324,18 +399,18 @@ export default {
                 }
             });
         },
-        showType ({ schoolType, schoolCode, schoolName }) {
+        showType({ schoolType, schoolCode, schoolName }) {
             this.showTypeModal = true;
             this.schoolType = schoolType;
             this.schoolCode = schoolCode;
             this.schoolName = schoolName;
         },
-        cancelType () {
+        cancelType() {
             this.showTypeModal = false;
         },
-        async saveType () {
+        async saveType() {
             const { schoolType, schoolCode, schoolName } = this;
-            const [err,] = await saveSchool({ schoolType, schoolCode, schoolName });
+            const [err] = await saveSchool({ schoolType, schoolCode, schoolName });
             this.showTypeModal = false;
             if (err) {
                 const msg = err || "修改失败";
@@ -344,30 +419,29 @@ export default {
             }
             this.queryList();
             // this.success('修改成功');
-
         },
         //应用出库
-        showOutbound () {
+        showOutbound({ schoolCode }) {
+            this.$store.commit("changeSchoolCode", schoolCode);
             this.outBoundModal = true;
         },
-        cancelOutBound () {
-            this.outBoundModal = false;
-        },
-        toDetail (row) {
+
+        toDetail(row) {
             this.$router.push({
-                name: 'AppPush',
+                name: "AppPush",
                 params: row
-            })
-        },
-        saveOutBound () { }
+            });
+        }
     },
-    mounted () {
+    mounted() {
         this.queryList();
         this.initAllSchool();
     }
 };
 </script>
 <style lang="stylus" scoped>
+.has__push-wrapper {
+}
 .plat_type {
     fon-size: 14px;
     display: flex;

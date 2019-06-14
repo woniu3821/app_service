@@ -2,38 +2,29 @@
     <div class="outbound-select">
         <div class="wrapper">
             <div class="left mr-15">
-                <BaseTabs
-                    v-model="currentTab"
-                    @on-click="tabChange"
-                >
+                <BaseTabs v-model="currentTab" @on-click="tabChange">
                     <div class="search_wrapper mt-10 mlr-10">
                         <Input
                             search
                             placeholder="请输入应用名称/应用ID"
                             style="width:260px;"
-                            v-model="queryListParams.searchKey"
+                            v-model="searchKey"
                             @on-search="queryListFirst"
                         />
-                        <div
-                            v-show="currentTab===0"
-                            class="plat_type"
-                        >
+                        <div v-show="currentTab === 0" class="plat_type">
                             <label class="mr-10">平台类型</label>
                             <Select
-                                v-model="queryListParams.categoryId"
+                                v-model="categoryId"
                                 style="width:150px"
                                 @on-change="changeType"
                             >
-                                <Option
-                                    value=""
-                                    :key="-1"
-                                >请选择...
-                                </Option>
+                                <Option value="" :key="-1">请选择... </Option>
                                 <Option
                                     v-for="item in appTypeList"
                                     :value="item.categoryId"
                                     :key="item.categoryId"
-                                >{{ item.categoryName }}</Option>
+                                    >{{ item.categoryName }}</Option
+                                >
                             </Select>
                         </div>
                     </div>
@@ -92,58 +83,47 @@
                 </BaseTabs>
             </div>
             <div class="right">
-                <p class="title ptb-5 plr-10">已选应用 {{concatApplist.length}}</p>
+                <p class="title ptb-5 plr-10">已选应用 {{ concatApplist.length }}</p>
                 <ul class="content">
-                    <li
-                        v-for="(item, index) in concatApplist"
-                        :key="index"
-                    >
-                        <p class="head">{{item.appName}}</p>
+                    <li v-for="(item, index) in concatApplist" :key="index">
+                        <p class="head">{{ item.appName }}</p>
                         <p class="info-icon cursor">
                             <template v-if="item.private">
-                                <PrivateToolTip
-                                    :data="item"
-                                    select
-                                />
+                                <PrivateToolTip :data="item" select />
                             </template>
                             <template v-else>
-                                <PublicToolTip
-                                    :data="item"
-                                    select
-                                />
+                                <PublicToolTip :data="item" select />
                             </template>
                         </p>
                         <p
                             class="version"
-                            :style="{visibility:item.parchaseVersion?'visible':'hidden'}"
-                        >{{item.parchaseVersion}}</p>
-                        <p
-                            class="close cursor"
-                            @click="cancelFromConcat(item.appId)"
+                            :style="{ visibility: item.parchaseVersion ? 'visible' : 'hidden' }"
                         >
-                            <Icon
-                                size="18"
-                                color="#CDCED4"
-                                type="md-close"
-                            />
+                            {{ item.parchaseVersion }}
+                        </p>
+                        <p class="close cursor" @click="cancelFromConcat(item.appId)">
+                            <Icon size="18" color="#CDCED4" type="md-close" />
                         </p>
                     </li>
                 </ul>
             </div>
         </div>
+        <slot v-bind:hasPushList="hasPushList"></slot>
     </div>
 </template>
 <script>
 import { readPrivateAppForPush, readPublicAppForPush, pushSchoolApp } from "@api/service";
-import PrivateToolTip from '@components/PrivateToolTip'
-import PublicToolTip from '@components/PublicToolTip'
-import BaseSelect from '@components/BaseSelect'
-import { mapState } from 'vuex'
+import PrivateToolTip from "@components/PrivateToolTip";
+import PublicToolTip from "@components/PublicToolTip";
+import BaseSelect from "@components/BaseSelect";
+import { mapState, mapActions } from "vuex";
 export default {
     components: { PrivateToolTip, PublicToolTip, BaseSelect },
     name: "OutboundSelect",
-    props: {},
-    data () {
+    props: {
+        loading: Boolean
+    },
+    data() {
         return {
             currentTab: 0,
             listLoading: false,
@@ -151,101 +131,135 @@ export default {
             appList: [],
             publicAppList: [],
             privateAppList: [],
-            allList: []
+            allList: [],
+            searchKey: "",
+            categoryId: ""
         };
     },
     computed: {
-        ...mapState(['appTypeList']),
-        baseParams () {
+        ...mapState(["appTypeList", "schoolCode"]),
+        baseParams() {
             return {
-                searchKey: '',
-                schoolCode: '',
+                searchKey: this.searchKey,
+                schoolCode: this.schoolCode,
                 pageNumber: 1,
                 pageSize: 6
-            }
+            };
         },
-        concatApplist () {
+        concatApplist() {
             return this.publicAppList.concat(this.privateAppList);
         },
-        pushParams () {
-            return {
-                schoolCode: '',
-                privateAppList: [],
-                publicAppList: []
-            }
+        hasPushList() {
+            //已经出库的列表
+            return this.concatApplist.filter(it => it.parchaseStatus === 1);
         },
-        queryListParams () {
+        privateNoPushApplist() {
+            //私有云未出库的列表
+            return this.privateAppList.filter(it => it.parchaseStatus === 0);
+        },
+        publicNoPushApplist() {
+            //公有云未出库的列表
+            return this.publicAppList.filter(it => it.parchaseStatus === 0);
+        },
+        hasPushNum() {
+            //出库的数量
+            return (
+                this.concatApplist.length -
+                (this.privateNoPushApplist.length + this.publicNoPushApplist.length)
+            );
+        },
+        queryListParams() {
             const map = new Map([
                 [
-                    0, {
-                        categoryId: '',
+                    0,
+                    {
+                        categoryId: this.categoryId,
                         ...this.baseParams
                     }
                 ],
-                [
-                    1, this.baseParams
-                ]
+                [1, this.baseParams]
             ]);
 
-            return map.get(this.currentTab)
+            return map.get(this.currentTab);
         },
         parseApplist: {
-            get () {
+            get() {
                 return this.appList;
             },
-            set (data) {
+            set(data) {
                 let newData = [];
                 //初始化处理数据结构
                 if (this.currentTab === 0) {
-                    newData = data.map(({ appId, appName, isWebApp, parchaseStatus, isMobileApp, versions, categoryId }) => {
-                        return {
-                            appId, appName, versions, categoryId, parchaseStatus, isWebApp, isMobileApp, private: true,
-                            isPurchaseWeb: isWebApp, isPurchaseMobile: isMobileApp, parchaseVersion: versions ? versions[0] : '',
-                            _checked: false
+                    newData = data.map(
+                        ({
+                            appId,
+                            appName,
+                            isWebApp,
+                            parchaseStatus,
+                            isMobileApp,
+                            versions,
+                            categoryId
+                        }) => {
+                            return {
+                                appId,
+                                appName,
+                                versions,
+                                categoryId,
+                                parchaseStatus,
+                                isWebApp,
+                                isMobileApp,
+                                private: true,
+                                isPurchaseWeb: isWebApp,
+                                isPurchaseMobile: isMobileApp,
+                                parchaseVersion: versions ? versions[0] : "",
+                                _checked: false
+                            };
                         }
-                    })
+                    );
                 } else if (this.currentTab === 1) {
                     newData = data.map(({ appId, appName, parchaseStatus, serviceList }) => {
                         return {
-                            appId, appName, serviceList, parchaseStatus, private: false,
+                            appId,
+                            appName,
+                            serviceList,
+                            parchaseStatus,
+                            private: false,
                             serviceIdList: [],
                             _checked: false
-                        }
-
-                    })
+                        };
+                    });
                 }
                 //如果已选就替换掉接口返回的数据
 
                 for (let has of this.concatApplist) {
-                    const index = newData.findIndex(it => it.appId === has.appId)
+                    const index = newData.findIndex(it => it.appId === has.appId);
                     if (index !== -1) {
-                        newData.splice(index, 1, has)
+                        newData.splice(index, 1, has);
                     }
                 }
                 this.appList = newData;
-
             }
         },
-        currentList () {
-            const map = new Map([[0, this.privateAppList], [1, this.publicAppList]])
-            return map.get(this.currentTab)
+        currentList() {
+            const map = new Map([[0, this.privateAppList], [1, this.publicAppList]]);
+            return map.get(this.currentTab);
         },
-        appColumns () {
+        appColumns() {
             if (this.currentTab == 0) {
                 return [
                     {
-                        type: 'selection',
+                        type: "selection",
                         width: 60,
-                        align: 'center'
+                        align: "center"
                     },
                     {
                         title: "应用名称",
                         width: 120,
                         render: (h, params) => {
                             const scopedSlots = {
-                                default: (props) => <header>{props.appName}</header>
-                            }
-                            return <PrivateToolTip data={params.row} scopedSlots={scopedSlots} />
+                                default: props => <header>{props.appName}</header>
+                            };
+                            return <PrivateToolTip data={params.row} scopedSlots={scopedSlots} />;
                         }
                     },
                     {
@@ -258,20 +272,36 @@ export default {
                         render: (h, param) => {
                             const { isPurchaseWeb, isPurchaseMobile, appId } = param.row;
 
-                            return (<div class="terminal">
-                                <div onClick={() => {
-
-                                    this.appList[param.index].isPurchaseWeb = param.row.isPurchaseWeb = isPurchaseWeb ? 0 : 1;
-                                    this.changeWeb(appId, param.row.isPurchaseWeb);
-
-                                }} class={isPurchaseWeb ? 'active' : ''}>PC</div>
-                                <div onClick={() => {
-
-                                    this.appList[param.index].isPurchaseMobile = param.row.isPurchaseMobile = isPurchaseMobile ? 0 : 1;
-                                    this.changeMobile(appId, param.row.isPurchaseMobile)
-
-                                }} class={isPurchaseMobile ? 'active' : ''}>移动端</div>
-                            </div>)
+                            return (
+                                <div class="terminal">
+                                    <div
+                                        onClick={() => {
+                                            this.appList[
+                                                param.index
+                                            ].isPurchaseWeb = param.row.isPurchaseWeb = isPurchaseWeb
+                                                ? 0
+                                                : 1;
+                                            this.changeWeb(appId, param.row.isPurchaseWeb);
+                                        }}
+                                        class={isPurchaseWeb ? "active" : ""}
+                                    >
+                                        PC
+                                    </div>
+                                    <div
+                                        onClick={() => {
+                                            this.appList[
+                                                param.index
+                                            ].isPurchaseMobile = param.row.isPurchaseMobile = isPurchaseMobile
+                                                ? 0
+                                                : 1;
+                                            this.changeMobile(appId, param.row.isPurchaseMobile);
+                                        }}
+                                        class={isPurchaseMobile ? "active" : ""}
+                                    >
+                                        移动端
+                                    </div>
+                                </div>
+                            );
                         }
                     },
 
@@ -281,34 +311,43 @@ export default {
                         width: 150,
                         render: (h, param) => {
                             let row = param.row;
-                            return <Select transfer vModel={param.row.parchaseVersion} onOn-change={(val) => {
-
-                                this.appList[param.index].parchaseVersion = val;
-                                this.changeVersion(param.row.appId, val);
-
-                            }}>
-                                {row.versions && row.versions.map((item, index) => {
-                                    return <Option value={item} key={index}>{item}</Option>
-                                })}
-                            </Select>
+                            return (
+                                <Select
+                                    transfer
+                                    vModel={param.row.parchaseVersion}
+                                    onOn-change={val => {
+                                        this.appList[param.index].parchaseVersion = val;
+                                        this.changeVersion(param.row.appId, val);
+                                    }}
+                                >
+                                    {row.versions &&
+                                        row.versions.map((item, index) => {
+                                            return (
+                                                <Option value={item} key={index}>
+                                                    {item}
+                                                </Option>
+                                            );
+                                        })}
+                                </Select>
+                            );
                         }
                     }
-                ]
+                ];
             } else {
                 return [
                     {
-                        type: 'selection',
+                        type: "selection",
                         width: 60,
-                        align: 'center'
+                        align: "center"
                     },
                     {
                         title: "应用名称",
                         width: 140,
                         render: (h, params) => {
                             const scopedSlots = {
-                                default: (props) => <header>{props.appName}</header>
-                            }
-                            return <PublicToolTip data={params.row} scopedSlots={scopedSlots} />
+                                default: props => <header>{props.appName}</header>
+                            };
+                            return <PublicToolTip data={params.row} scopedSlots={scopedSlots} />;
                         }
                     },
                     {
@@ -323,52 +362,143 @@ export default {
                         render: (h, params) => {
                             const { serviceList } = params.row;
                             const list = serviceList || [];
-                            return <BaseSelect
-                                vModel={params.row.serviceIdList}
-                                onOn-change={(value) => {
-                                    this.appList[params.index].serviceIdList = value;
-                                    this.changeServiceIdList(params.row.appId, value);
-                                }}
-                                list={list}>
-                            </BaseSelect>
+                            return (
+                                <BaseSelect
+                                    vModel={params.row.serviceIdList}
+                                    onOn-change={value => {
+                                        this.appList[params.index].serviceIdList = value;
+                                        this.changeServiceIdList(params.row.appId, value);
+                                    }}
+                                    list={list}
+                                />
+                            );
                         }
-                    },
-
-                ]
+                    }
+                ];
             }
         },
-        currentTableRefs () {
+        currentTableRefs() {
             const ref = new Map([[0, this.$refs.private], [1, this.$refs.public]]);
-            return ref.get(this.currentTab)
+            return ref.get(this.currentTab);
+        },
+        checkAppApiParams() {
+            return {
+                privateApps: this.privateNoPushApplist.map(it => {
+                    return { appId: it.appId, version: it.parchaseVersion };
+                })
+            };
+        },
+        pushSchoolAppParams() {
+            const privateAppList = this.privateNoPushApplist.map(
+                ({
+                    appId,
+                    appName,
+                    isPurchaseWeb,
+                    isPurchaseMobile,
+                    parchaseVersion,
+                    categoryId
+                }) => {
+                    return {
+                        appId,
+                        appName,
+                        isPurchaseWeb,
+                        isPurchaseMobile,
+                        parchaseVersion,
+                        categoryId
+                    };
+                }
+            );
+
+            const publicAppList = this.publicNoPushApplist.map(
+                ({ appId, appName, serviceList, serviceIdList }) => {
+                    return {
+                        appId,
+                        appName,
+                        serviceList: serviceList.filter(it => serviceIdList.includes(it.serviceId))
+                    };
+                }
+            );
+            return {
+                schoolCode: this.schoolCode,
+                privateAppList,
+                publicAppList
+            };
         }
     },
     methods: {
-        selectOne (selection, row) {
-            this.changeChecked(true, row)
-            row._checked = true;
-            this.pushSelect(row)
+        ...mapActions(["CHECK_PRIVATE_API"]),
+        async checkAppApi() {
+            if (this.privateNoPushApplist.length || this.publicNoPushApplist.length) {
+                this.$emit("update:loading", true);
+
+                //如果有私有云未出库列表需要先验证
+                if (this.privateNoPushApplist.length) {
+                    const [err, data] = await this.CHECK_PRIVATE_API(this.checkAppApiParams);
+
+                    if (err) {
+                        this.$emit("update:loading", false);
+                        return;
+                    }
+                    if (!data.length) {
+                        await this.pushSchoolApp(this.pushSchoolAppParams);
+                        this.$store.commit("changeTipStatus", 1);
+                        return;
+                    }
+                    this.$emit("update:loading", false);
+                } else {
+                    await this.pushSchoolApp(this.pushSchoolAppParams);
+                    this.$store.commit("changeTipStatus", 1);
+                }
+            } else {
+                this.$store.commit("changeTipStatus", 1);
+                this.warning("无可出库的应用");
+            }
         },
-        selectOneCancel (selection, row) {
-            this.changeChecked(false, row)
+        clearSelect() {
+            this.publicAppList = [];
+            this.privateAppList = [];
+            this.searchKey = "";
+            this.categoryId = "";
+            this.currentTab = 0;
+            this.$store.commit("changeTipStatus", 1);
+            this.queryListFirst();
+        },
+        async pushSchoolApp() {
+            const [err, data] = await pushSchoolApp(this.pushSchoolAppParams);
+            this.$emit("update:loading", false);
+            if (err) {
+                const msg = err || "出库失败";
+                this.errors(msg);
+                return;
+            }
+            this.success(`成功推送${data.count}`);
+        },
+        selectOne(selection, row) {
+            this.changeChecked(true, row);
+            row._checked = true;
+            this.pushSelect(row);
+        },
+        selectOneCancel(selection, row) {
+            this.changeChecked(false, row);
             row._checked = false;
             this.cancelSelect(row);
         },
-        selectAll (selection) {
+        selectAll(selection) {
             this.changeAllChecked(true);
             this.pushAllSelect(selection);
         },
-        selectAllCancel () {
+        selectAllCancel() {
             this.changeAllChecked(false);
-            this.cancelAllSelect()
+            this.cancelAllSelect();
         },
-        pushSelect (row) {
+        pushSelect(row) {
             this.currentList.push(row);
         },
-        cancelSelect ({ appId }) {
-            const index = this.findCurrentIDIndex(appId)
+        cancelSelect({ appId }) {
+            const index = this.findCurrentIDIndex(appId);
             index !== -1 && this.currentList.splice(index, 1);
         },
-        pushAllSelect (selection) {
+        pushAllSelect(selection) {
             for (let from of selection) {
                 if (this.findCurrentIDIndex(from.appId) > -1) {
                     continue;
@@ -377,43 +507,43 @@ export default {
                 this.currentList.push(from);
             }
         },
-        cancelAllSelect () {
+        cancelAllSelect() {
             for (let from of this.appList) {
                 let index = this.findCurrentIDIndex(from.appId);
                 index !== -1 && this.currentList.splice(index, 1);
             }
         },
         //更改单个选中状态
-        changeChecked (check, { appId }) {
+        changeChecked(check, { appId }) {
             this.appList.map(it => {
                 if (it.appId === appId) {
-                    it._checked = check
+                    it._checked = check;
                 }
-            })
+            });
         },
         //根据id修改终端类型
-        changeWeb (appId, state) {
+        changeWeb(appId, state) {
             let index = this.findCurrentIDIndex(appId);
             index !== -1 && (this.currentList[index].isPurchaseWeb = state);
         },
-        changeMobile (appId, state) {
+        changeMobile(appId, state) {
             let index = this.findCurrentIDIndex(appId);
             index !== -1 && (this.currentList[index].isPurchaseMobile = state);
         },
-        changeVersion (appId, state) {
+        changeVersion(appId, state) {
             let index = this.findCurrentIDIndex(appId);
             index !== -1 && (this.currentList[index].parchaseVersion = state);
         },
-        changeServiceIdList (appId, state) {
+        changeServiceIdList(appId, state) {
             let index = this.findCurrentIDIndex(appId);
             index !== -1 && (this.currentList[index].serviceIdList = state);
         },
-        changeAllChecked (check) {
-            this.appList.map(it => it._checked = check);
+        changeAllChecked(check) {
+            this.appList.map(it => (it._checked = check));
         },
 
         //从已选中删除选中
-        cancelFromConcat (appId) {
+        cancelFromConcat(appId) {
             const index = this.findCurrentIDIndex(appId);
             this.currentList.splice(index, 1);
 
@@ -428,16 +558,16 @@ export default {
             });
         },
         //根据id从已选列表中找到数据索引
-        findCurrentIDIndex (appId) {
-            return this.currentList.findIndex(it => it.appId === appId)
+        findCurrentIDIndex(appId) {
+            return this.currentList.findIndex(it => it.appId === appId);
         },
-        tabChange () {
+        tabChange() {
             this.queryListFirst();
         },
-        changeType () {
+        changeType() {
             this.queryListFirst();
         },
-        async queryList () {
+        async queryList() {
             this.listLoading = true;
 
             const queryFn = this.currentTab === 0 ? readPrivateAppForPush : readPublicAppForPush;
@@ -451,20 +581,20 @@ export default {
             this.totalSize = data.totalSize;
             this.parseApplist = data.rows;
         },
-        queryListFirst () {
+        queryListFirst() {
             this.queryListParams.pageNumber = 1;
             this.queryList();
         },
-        pageNumChange (num) {
+        pageNumChange(num) {
             this.queryListParams.pageNumber = num;
             this.queryList();
         },
-        pageSizeChange (num) {
+        pageSizeChange(num) {
             this.queryListParams.pageSize = num;
             this.queryList();
-        },
+        }
     },
-    mounted () {
+    mounted() {
         this.queryList();
     }
 };

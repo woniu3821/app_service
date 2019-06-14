@@ -11,10 +11,7 @@
             ></Input>
         </div>
         <transition name="slide">
-            <div
-                class="slide"
-                v-show="showSlide"
-            >
+            <div class="slide" v-show="showSlide">
                 <div class="check_item">
                     <Checkbox
                         :indeterminate="indeterminate"
@@ -25,17 +22,10 @@
                     </Checkbox>
                 </div>
                 <div>
-                    <CheckboxGroup
-                        :value="value"
-                        @on-change="checkAllGroupChange"
-                    >
-                        <div
-                            v-for="(item,index) in list"
-                            :key="index"
-                            class="check_item"
-                        >
+                    <CheckboxGroup :value="value" @on-change="checkAllGroupChange">
+                        <div v-for="(item, index) in list" :key="index" class="check_item">
                             <Checkbox :label="item.serviceId">
-                                {{item|filterName}}
+                                {{ item | filterName }}
                             </Checkbox>
                         </div>
                     </CheckboxGroup>
@@ -45,25 +35,25 @@
     </div>
 </template>
 <script>
-import { } from "@api/service";
-import { setTimeout } from 'timers';
+import {} from "@api/service";
+import { setTimeout } from "timers";
 
-function getServiceName (item) {
+function getServiceName(item) {
     if (item) {
         let { isWebService, isMobileService, serviceName } = item;
-        let text = ''
+        let text = "";
         if (isWebService) {
-            text = '（PC）'
+            text = "（PC）";
         }
         if (isMobileService) {
-            text = '（移动）'
+            text = "（移动）";
         }
         if (isWebService && isMobileService) {
-            text = '（PC/移动）'
+            text = "（PC/移动）";
         }
-        return serviceName += text;
+        return (serviceName += text);
     }
-    return ''
+    return "";
 }
 
 export default {
@@ -80,31 +70,33 @@ export default {
         }
     },
     filters: {
-        filterName (item) {
+        filterName(item) {
             return getServiceName(item);
         }
     },
-    data () {
+    data() {
         return {
             showSlide: false,
-            select: '',
+            select: "",
             checkAll: false,
-            indeterminate: true,
+            indeterminate: true
         };
     },
     computed: {
-        checkAllGroupText () {
-            return this.value.map(id => {
-                for (const item of this.list) {
-                    if (item.serviceId === id) {
-                        return getServiceName(item)
+        checkAllGroupText() {
+            return this.value
+                .map(id => {
+                    for (const item of this.list) {
+                        if (item.serviceId === id) {
+                            return getServiceName(item);
+                        }
                     }
-                }
-            }).join(',')
-        },
+                })
+                .join(",");
+        }
     },
     methods: {
-        checkAllGroupChange (data) {
+        checkAllGroupChange(data) {
             if (data.length === this.list.length) {
                 this.indeterminate = false;
                 this.checkAll = true;
@@ -115,10 +107,10 @@ export default {
                 this.indeterminate = false;
                 this.checkAll = false;
             }
-            this.$emit('on-change', data);
-            this.$emit('input', data)
+            this.$emit("on-change", data);
+            this.$emit("input", data);
         },
-        handleCheckAll () {
+        handleCheckAll() {
             if (this.indeterminate) {
                 this.checkAll = false;
             } else {
@@ -128,29 +120,27 @@ export default {
 
             if (this.checkAll) {
                 const data = this.list.map(it => it.serviceId);
-                this.$emit('input', data)
+                this.$emit("input", data);
 
-                this.$emit('on-change', data);
+                this.$emit("on-change", data);
             } else {
-                this.$emit('input', [])
-                this.$emit('on-change', []);
+                this.$emit("input", []);
+                this.$emit("on-change", []);
             }
         },
-        focus () {
+        focus() {
             this.showSlide = true;
         },
-        blur () {
+        blur() {
             this.showSlide = false;
-        },
-
+        }
     },
-    mounted () {
+    mounted() {
         // window.addEventListener('onscroll', () => {
         //     this.blur()
         // })
     }
-
-}
+};
 </script>
 <style lang="stylus" scoped>
 .base-select {

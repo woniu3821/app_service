@@ -6,7 +6,7 @@ function resolve(dir) {
     return path.join(__dirname, dir);
 }
 module.exports = {
-    lintOnSave: false,
+    lintOnSave: true,
     // 打包文件的前缀
     publicPath: PRODUCT ? "/wec-devops-superapp" : "./",
     // 打包输出目录

@@ -1,8 +1,8 @@
 import ajax from "@utils/ajax";
-import { GET_PRIVATE_CATEGORY } from "./types";
+import { GET_PRIVATE_CATEGORY, CHECK_PRIVATE_API } from "./types";
 import { awaitWrap } from "@utils";
 
-import { initPrivateCategory } from "@api/service";
+import { initPrivateCategory, checkAppApi } from "@api/service";
 
 import { Message } from "iview";
 
@@ -13,7 +13,17 @@ export default {
         if (err) {
             const msg = err || "获取应用分类失败";
             Message.error(msg);
+            return;
         }
         commit("setTypeList", data);
+    },
+    async [CHECK_PRIVATE_API]({ commit }, params) {
+        const [err, data] = await checkAppApi(params);
+        if (err) {
+            const msg = err || "检查私有云应用所需的api错误";
+            Message.error(msg);
+        }
+        commit("checkApiList", data || []);
+        return [err, data || []];
     }
 };

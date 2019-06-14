@@ -14,23 +14,23 @@
     </div>
 </template>
 <script>
-import { } from "@api/service";
-import { mapActions } from 'vuex'
+import {} from "@api/service";
+import { mapActions } from "vuex";
 export default {
     name: "Home",
     meta: { name: "应用出库" },
     components: {},
     props: {},
-    data () {
+    data() {
         return {
             name: "应用出库"
         };
     },
     computed: {},
     methods: {
-        ...mapActions(['GET_PRIVATE_CATEGORY'])
+        ...mapActions(["GET_PRIVATE_CATEGORY"])
     },
-    mounted () {
+    mounted() {
         this.GET_PRIVATE_CATEGORY();
     }
 };

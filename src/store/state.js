@@ -1,3 +1,7 @@
 export default {
-    appTypeList: []
+    appTypeList: [],
+    checkApiList: [],
+    apiList: [],
+    tipStatus: 1,
+    schoolCode: ""
 };
