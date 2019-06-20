@@ -224,7 +224,9 @@ export default {
                             serviceList,
                             parchaseStatus,
                             private: false,
-                            serviceIdList: [],
+                            serviceIdList: serviceList
+                                .filter(item => item.hasPurchased === 1)
+                                .map(it => it.serviceId),
                             _checked: false
                         };
                     });

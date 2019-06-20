@@ -248,9 +248,10 @@ export default {
                         }
                     ],
                     filterMultiple: false,
-                    filterMethod: (value, row) => {
-                        // this.queryListParams.schoolType = value;
-                        return row.schoolType === value;
+                    filterRemote: value => {
+                        this.queryListParams.schoolType = value;
+                        this.queryList();
+                        // return row.schoolType === value;
                     },
                     render: (h, param) => {
                         const { schoolType } = param.row;

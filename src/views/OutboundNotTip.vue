@@ -16,7 +16,8 @@
                                     缺少以下API，请联系智校云平台管理员注册接口后再出库
                                 </dt>
                                 <dd v-for="child in item.missApiList" :key="child.apiId">
-                                    . {{ child.apiName }} {{ child.apiUrl }}
+                                    {{ child.apiName }} {{ child.apiUrl }}
+                                    <Icon @click="onCopy(child.apiUrl)" type="ios-copy" />
                                 </dd>
                             </dl>
                         </li>
@@ -32,6 +33,7 @@
 <script>
 import {} from "@api/service";
 import { mapState } from "vuex";
+import Clipboard from "clipboard";
 export default {
     components: {},
     name: "OutboundNotTip",
@@ -53,6 +55,18 @@ export default {
         close() {
             this.$emit("on-click");
             this.$store.commit("changeTipStatus", 1);
+        },
+        onCopy(content) {
+            const clipboard = new Clipboard(".Copy-btn", {
+                target() {
+                    return content;
+                }
+            });
+            clipboard.on("success", e => {
+                e.clearSelection();
+                this.$Message.success("复制成功！");
+                clipboard.destroy();
+            });
         }
     }
 };
@@ -84,6 +98,11 @@ export default {
             dd {
                 color: #ff9900;
                 font-size: 12px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                flex-direction: column;
             }
         }
     }

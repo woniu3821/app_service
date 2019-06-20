@@ -145,7 +145,12 @@ export const  checkAppApi =async (params) => {
 /**
  * 查询学校已推送的应用信息
  * @param { Object } params 请求参数
- * @param { Array } params['schoolCodes'] 要查询的学校代码列表
+ * @param { String } params['timestamp'] 时间戳
+ * @param { String } params['nonce'] 随机数
+ * @param { String } params['echostr'] AES加密后的字符串。需要解密后得到数据结构体postData，其中postData为json字符串格式
+ * @param { String } params['sign'] 加密签名，md5（token+timestamp+nonce+echostr），其中 md5 值 为长度为 32 位的小写字符串
+ * @param { String } params['school'] 租户信息
+ * @param { String } params['schoolType'] 1 表示 school是租户代码 2 表示 school是租户id
  */
 export const  getSchoolPushedApps =async (params) => {
     // send request
@@ -155,8 +160,12 @@ export const  getSchoolPushedApps =async (params) => {
 /**
  * 设置学校应用接入状态
  * @param { Object } params 请求参数
- * @param { String } params['schoolCode'] 学校代码
- * @param { String } params['superappId'] 应用id
+ * @param { String } params['timestamp'] 时间戳
+ * @param { String } params['nonce'] 随机数
+ * @param { String } params['echostr'] AES加密后的字符串。需要解密后得到数据结构体postData，其中postData为json字符串格式
+ * @param { String } params['sign'] 加密签名，md5（token+timestamp+nonce+echostr），其中 md5 值 为长度为 32 位的小写字符串
+ * @param { String } params['school'] 租户信息
+ * @param { String } params['schoolType'] 1 表示 school是租户代码 2 表示 school是租户id
  */
 export const  setAppPurchaseStatus =async (params) => {
     // send request

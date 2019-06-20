@@ -24,7 +24,7 @@
                 <div>
                     <CheckboxGroup :value="value" @on-change="checkAllGroupChange">
                         <div v-for="(item, index) in list" :key="index" class="check_item">
-                            <Checkbox :label="item.serviceId">
+                            <Checkbox :label="item.serviceId" :disabled="item.hasPurchased === 1">
                                 {{ item | filterName }}
                             </Checkbox>
                         </div>
@@ -36,7 +36,6 @@
 </template>
 <script>
 import {} from "@api/service";
-import { setTimeout } from "timers";
 
 function getServiceName(item) {
     if (item) {
@@ -79,7 +78,8 @@ export default {
             showSlide: false,
             select: "",
             checkAll: false,
-            indeterminate: true
+            indeterminate: false,
+            oldVlaue: []
         };
     },
     computed: {
@@ -121,11 +121,13 @@ export default {
             if (this.checkAll) {
                 const data = this.list.map(it => it.serviceId);
                 this.$emit("input", data);
-
                 this.$emit("on-change", data);
             } else {
-                this.$emit("input", []);
-                this.$emit("on-change", []);
+                const data = this.list
+                    .filter(item => item.hasPurchased === 1)
+                    .map(it => it.serviceId);
+                this.$emit("input", data);
+                this.$emit("on-change", data);
             }
         },
         focus() {

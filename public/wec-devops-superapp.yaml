@@ -187,7 +187,7 @@ paths:
         200:
           description: '请求成功'
           schema:
-            $ref: '#/definitions/basicPushResponse'
+            $ref: '#/definitions/pushSchoolResponse'
 
   /school/queryPrivateApp:
     post:
@@ -278,12 +278,12 @@ paths:
           required: true
           description: '请求'
           schema:
-            $ref: '#/definitions/schoolPushedAppRequest'
+            $ref: '#/definitions/baseBean'
       responses:
         200:
           description: '请求成功'
           schema:
-            $ref: '#/definitions/schoolPushedAppResponse'
+            $ref: '#/definitions/baseBeanResponse'
 
   /restful/setAppPurchaseStatus:
     post:
@@ -302,12 +302,12 @@ paths:
           required: true
           description: '请求'
           schema:
-            $ref: '#/definitions/setAppPurchaseRequest'
+            $ref: '#/definitions/baseBean'
       responses:
         200:
           description: '请求成功'
           schema:
-            $ref: '#/definitions/basicPushResponse'
+            $ref: '#/definitions/baseBeanResponse'
 
 definitions:
   schoolQueryRequest:
@@ -616,6 +616,9 @@ definitions:
       isMobileService:
         type: 'integer'
         description: '是否移动服务。0:否；1：是'
+      hasPurchased:
+        type: 'integer'
+        description: '是否已出库。0:否；1：是'
 
   pushSchoolAppRequest:
     type: 'object'
@@ -667,6 +670,27 @@ definitions:
         type: 'array'
         items:
           $ref: '#/definitions/appService'
+
+  pushSchoolResponse:
+    type: 'object'
+    properties:
+      code:
+        type: 'string'
+        description: '操作状态码（0：成功，999：失败）'
+      message:
+        type: 'string'
+        description: '请求成功相关信息'
+      datas:
+        type: 'object'
+        items:
+          $ref: '#/definitions/pushResult'
+
+  pushResult:
+    type: 'object'
+    properties:
+      count:
+        type: 'integer'
+        description: '成功出库条数'
 
   queryPrivateAppRequest:
     type: 'object'
@@ -730,6 +754,9 @@ definitions:
   pushPrivateAppInfo:
     type: 'object'
     properties:
+      schoolCode:
+        type: 'string'
+        description: '学校代码'
       appId:
         type: 'string'
         description: '应用id'
@@ -897,6 +924,7 @@ definitions:
       superappId:
         type: 'string'
         description: '应用id'
+
   schoolPushedAppRequest:
     type: 'object'
     properties:
@@ -926,6 +954,9 @@ definitions:
       schoolCode:
         type: 'string'
         description: '学校代码'
+      schoolToken:
+        type: 'string'
+        description: '用于取私有云应用包接口的token'
       superappId:
         type: 'string'
         description: '应用id'
@@ -957,19 +988,121 @@ definitions:
         type: 'array'
         description: '应用使用的api地址列表'
         items:
-          type: 'string'
+          $ref: '#/definitions/apiInfo'
       services:
         type: 'array'
         description: '应用下属服务列表'
         items:
           $ref: '#/definitions/service'
+      privileges:
+        type: 'object'
+        description: '权限信息'
+        items:
+          $ref: '#/definitions/privilege'
+
+  privilege:
+    type: 'object'
+    properties:
+      callbackInfo:
+        description: '回调设置'
+        items:
+          $ref: '#/definitions/callbackInfo'
+      dictDataRoleInfo:
+        type: 'array'
+        description: '字典数据权限'
+        items:
+          $ref: '#/definitions/dictDataRoleInfo'
+      tableDataRoleInfo:
+        type: 'array'
+        description: '数据表权限'
+        items:
+          $ref: '#/definitions/tableDataRoleInfo'
+
+  tableDataRoleInfo:
+    type: 'object'
+    properties:
+      tableWid:
+        type: 'integer'
+        format: 'int64'
+        description: '字典表的WID'
+      tableName:
+        type: 'string'
+        description: '字典表的名称'
+      privilege:
+        type: 'string'
+        description: '当前已经选择的表权限，使用逗号分隔'
+      fieldPrivilege:
+        type: 'array'
+        description: '选择的属性权限'
+        items:
+          $ref: '#/definitions/fieldRoleInfo'
+
+  fieldRoleInfo:
+    type: 'object'
+    properties:
+      tableWid:
+        type: 'integer'
+        format: 'int64'
+        description: '字典表的WID'
+      fieldWid:
+        type: 'integer'
+        format: 'int64'
+        description: '属性的WID'
+      fieldName:
+        type: 'string'
+        description: '属性的名称'
+      privilege:
+        type: 'string'
+        description: '当前已经选择的属性的权限，使用逗号分隔'
+
+  dictDataRoleInfo:
+    type: 'object'
+    properties:
+      tableWid:
+        type: 'integer'
+        format: 'int64'
+        description: '字典表的WID'
+      tableName:
+        type: 'string'
+        description: '字典表的名称'
+      privilege:
+        type: 'string'
+        description: '当前已经选择的表权限，使用逗号分隔'
+
+  callbackInfo:
+    type: 'object'
+    properties:
+      callBackUrlOnline:
+        type: 'string'
+        description: '回调地址(正式)'
+      callBackUrlTest:
+        type: 'string'
+        description: '回调地址(测试)'
+      retryTimes:
+        type: 'integer'
+        description: '重试次数'
+      retryInterval:
+        type: 'integer'
+        description: '重试间隔/min'
+
+  apiInfo:
+    type: 'object'
+    properties:
+      apiId:
+        type: 'string'
+        description: 'API的ID'
+      apiVersion:
+        type: 'integer'
+        description: 'API的版本 0 V1版本，1 V2版本'
+      apiUrl:
+        type: 'string'
+        description: 'API的访问地址'
 
   service:
     type: 'object'
     properties:
       serviceId:
-        type: 'integer'
-        format: 'int64'
+        type: 'string'
         description: '服务ID'
       serviceName:
         type: 'string'
@@ -1003,3 +1136,37 @@ definitions:
       hybridPackageUrl:
         type: 'string'
         description: 'hybrid服务包地址'
+
+  baseBeanResponse:
+    type: 'object'
+    properties:
+      status:
+        type: 'string'
+        description: '应用响应状态'
+      msg:
+        type: 'string'
+        description: '返回码描述'
+      data:
+        $ref: '#/definitions/baseBean'
+
+  baseBean:
+    type: 'object'
+    properties:
+      timestamp:
+        type: 'string'
+        description: '时间戳'
+      nonce:
+        type: 'string'
+        description: '随机数'
+      echostr:
+        type: 'string'
+        description: 'AES加密后的字符串。需要解密后得到数据结构体postData，其中postData为json字符串格式'
+      sign:
+        type: 'string'
+        description: '加密签名，md5（token+timestamp+nonce+echostr），其中 md5 值 为长度为 32 位的小写字符串'
+      school:
+        type: 'string'
+        description: '租户信息'
+      schoolType:
+        type: 'string'
+        description: '1 表示 school是租户代码 2 表示 school是租户id'
